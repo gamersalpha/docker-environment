@@ -169,7 +169,7 @@ version: '2'
   
 services:
   portainer:
-    image: portainer/portainer-ce:latest
+    image: portainer/portainer-ce:sts
     container_name: portainer
     restart: unless-stopped
     security_opt:
