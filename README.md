@@ -26,7 +26,7 @@
 
 ### Interactive
 ```bash
-bash -c "$(curl -s https://raw.githubusercontent.com/PAPAMICA/docker-environment/main/install-docker-environment.sh)"
+bash -c "$(curl -s https://github.com/gamersalpha/docker-environment/blob/main/install-docker-environment.sh)"
 ```
 
 ### Not interactive
@@ -42,7 +42,7 @@ You need to redirect this URL to server IP:
 - portainer.ndd
 
 ```bash
-bash -c "$(curl -s https://raw.githubusercontent.com/PAPAMICA/docker-environment/main/install-docker-environment.sh)"
+bash -c "$(curl -s https://github.com/gamersalpha/docker-environment/blob/main/install-docker-environment.sh)"
 ```
 
 ---
@@ -50,7 +50,7 @@ bash -c "$(curl -s https://raw.githubusercontent.com/PAPAMICA/docker-environment
 ## Deploy on Infomaniak Public Cloud (or OpenStack)
 You can use my heat template with this command:
 ```bash
-openstack stack create --template https://raw.githubusercontent.com/PAPAMICA/docker-environment/main/Heat-template/docker-environment.yml docker --wait \
+openstack stack create --template https://github.com/gamersalpha/docker-environment/blob/main/Heat-template/docker-environment.yml docker --wait \
 --parameter image='Debian 11.3 bullseye' \
 --parameter flavor='a4-ram8-disk50-perf1' \
 --parameter key='<YOUR_KEY>' \
