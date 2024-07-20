@@ -19,6 +19,19 @@ if [ -z "$OVH_APPLICATION_KEY" ]; then
   read -p "Please provide a OVH_APPLICATION_KEY for OVH : " OVH_APPLICATION_KEY
 fi
 
+if [ -z "$OVH_APPLICATION_SECRET" ]; then
+  read -p "Please provide a OVH_APPLICATION_SECRET for OVH : " OVH_APPLICATION_SECRET
+fi
+
+if [ -z "$OVH_CONSUMER_KEY" ]; then
+  read -p "Please provide a OVH_CONSUMER_KEY for OVH : " OVH_CONSUMER_KEY
+fi
+
+if [ -z "$OVH_ENDPOINT" ]; then
+  read -p "Please provide a OVH_ENDPOINT for OVH : " OVH_ENDPOINT
+fi
+
+
 
 if [ -z "$NDD" ]; then
   read -p "Please provide a domain name : " NDD
