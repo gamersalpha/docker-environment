@@ -23,18 +23,6 @@ if [ -z "$NDD" ]; then
   read -p "Press enter to continue"
 fi
 
-# Distrib RHEL
-if [ -x "$(command -v dnf)" ]; then
-    yum update -y
-    yum install -y yum-utils curl wget httpd-tools
-    yum-config-manager --add-repo "https://download.docker.com/linux/centos/docker-ce.repo"
-    yum makecache
-    yum install -y docker-ce docker-ce-cli containerd.io
-    curl -s https://api.github.com/repos/docker/compose/releases/latest | grep browser_download_url  | grep docker-compose-linux-x86_64 | cut -d '"' -f 4 | wget -qi -
-    chmod +x docker-compose-linux-x86_64
-    mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
-    ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-
 # Distrib Debian / Ubuntu
 elif [ -x "$(command -v apt-get)" ]; then
     apt update && apt upgrade -y
