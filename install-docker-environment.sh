@@ -15,6 +15,11 @@ if [ -z "$PASSWORD_TRAEFIK" ]; then
   read -p "Please provide a password for Traefik : " PASSWORD_TRAEFIK
 fi
 
+if [ -z "$OVH_APPLICATION_KEY" ]; then
+  read -p "Please provide a OVH_APPLICATION_KEY for OVH : " OVH_APPLICATION_KEY
+fi
+
+
 if [ -z "$NDD" ]; then
   read -p "Please provide a domain name : " NDD
   echo -e "\nYou need to redirect this URL to server IP ($(curl -s ifconfig.me)):"
@@ -22,6 +27,18 @@ if [ -z "$NDD" ]; then
   echo "   - traefik.$NDD"
   read -p "Press enter to continue"
 fi
+
+# Distrib RHEL
+if [ -x "$(command -v dnf)" ]; then
+    yum update -y
+    yum install -y yum-utils curl wget httpd-tools
+    yum-config-manager --add-repo "https://download.docker.com/linux/centos/docker-ce.repo"
+    yum makecache
+    yum install -y docker-ce docker-ce-cli containerd.io
+    curl -s https://api.github.com/repos/docker/compose/releases/latest | grep browser_download_url  | grep docker-compose-linux-x86_64 | cut -d '"' -f 4 | wget -qi -
+    chmod +x docker-compose-linux-x86_64
+    mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
+    ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 
 # Distrib Debian / Ubuntu
 elif [ -x "$(command -v apt-get)" ]; then
@@ -42,6 +59,23 @@ if [ -x "$(firewall-cmd --version)" ]; then
     firewall-cmd --add-port=443/tcp --permanent
     firewall-cmd --reload
 fi
+
+mkdir -p /apps/traefik/secrets
+cat <<EOF >>/apps/traefik/secrets/ovh_application_key.secret
+$OVH_APPLICATION_KEY
+EOF
+
+cat <<EOF >>/apps/traefik/secrets/ovh_application_secret.secret
+$OVH_APPLICATION_SECRET
+EOF
+
+cat <<EOF >>/apps/traefik/secrets/ovh_consumer_key.secret
+$OVH_APPLICATION_KEY
+EOF
+
+cat <<EOF >>/apps/traefik/secrets/ovh_endpoint.secret
+$OVH_ENDPOINT
+EOF
 
 systemctl enable docker
 systemctl start docker
@@ -118,6 +152,18 @@ services:
     traefik:
         image: traefik:latest
         container_name: traefik
+        command:
+          #- "--log.level=DEBUG"
+          - "--api.insecure=true"
+          - "--providers.docker=true"
+          - "--providers.docker.exposedbydefault=false"
+          - "--entryPoints.web.address=:80"
+          - "--entryPoints.websecure.address=:443"
+          - "--certificatesresolvers.myresolver.acme.dnschallenge=true"
+          - "--certificatesresolvers.myresolver.acme.dnschallenge.provider=ovh"
+          #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+          - "--certificatesresolvers.myresolver.acme.email=postmaster@example.com"
+          - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
         restart: always
         healthcheck:
           test: grep -qr "traefik" /proc/*/status || exit 1
@@ -127,6 +173,16 @@ services:
         ports:
             - 80:80
             - 443:443
+        secrets:
+          - "ovh_endpoint"
+          - "ovh_application_key"
+          - "ovh_application_secret"
+          - "ovh_consumer_key"
+        environment:
+          - "OVH_ENDPOINT_FILE=/run/secrets/ovh_endpoint"
+          - "OVH_APPLICATION_KEY_FILE=/run/secrets/ovh_application_key"
+          - "OVH_APPLICATION_SECRET_FILE=/run/secrets/ovh_application_secret"
+          - "OVH_CONSUMER_KEY_FILE=/run/secrets/ovh_consumer_key"               
         volumes:
             - /etc/localtime:/etc/localtime:ro
             - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -134,6 +190,8 @@ services:
             - /apps/traefik/config/config.yml:/config.yml:ro  
             - /apps/traefik/config/acme.json:/acme.json
             - /apps/traefik/config/custom:/custom:ro
+            - "./letsencrypt:/letsencrypt"
+            - "/var/run/docker.sock:/var/run/docker.sock:ro"
         labels:
           # Front API
           autoupdate: monitor
