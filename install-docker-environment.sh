@@ -203,8 +203,8 @@ services:
             - /apps/traefik/config/config.yml:/config.yml:ro  
             - /apps/traefik/config/acme.json:/acme.json
             - /apps/traefik/config/custom:/custom:ro
-            - "./letsencrypt:/letsencrypt"
-            - "/var/run/docker.sock:/var/run/docker.sock:ro"
+            - ./letsencrypt:/letsencrypt
+            - /var/run/docker.sock:/var/run/docker.sock:ro
         labels:
           # Front API
           autoupdate: monitor
