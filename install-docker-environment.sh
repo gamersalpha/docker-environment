@@ -83,7 +83,7 @@ $OVH_APPLICATION_SECRET
 EOF
 
 cat <<EOF >>/apps/traefik/secrets/ovh_consumer_key.secret
-$OVH_APPLICATION_KEY
+$OVH_CONSUMER_KEY
 EOF
 
 cat <<EOF >>/apps/traefik/secrets/ovh_endpoint.secret
@@ -111,7 +111,7 @@ entryPoints:
     address: ":443"
     http:
       tls:
-        certResolver: http
+        certResolver: dns
 providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
@@ -120,12 +120,14 @@ providers:
     directory: custom/
     watch: true
 certificatesResolvers:
-  http:
+  dns:
     acme:
       email: $EMAIL
       storage: acme.json
-      httpChallenge:
-        entryPoint: http
+      dnsChallenge:
+        provider: ovh
+        delayBeforeCheck: 10
+
 serverstransport:
   insecureskipverify: true
 EOF
@@ -204,7 +206,6 @@ services:
             - /apps/traefik/config/acme.json:/acme.json
             - /apps/traefik/config/custom:/custom:ro
             - ./letsencrypt:/letsencrypt
-            - /var/run/docker.sock:/var/run/docker.sock:ro
         labels:
           # Front API
           autoupdate: monitor

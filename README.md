@@ -1,3 +1,25 @@
+
+<p>
+
+Fork qui permet d'installer Portenair avec Traefik avec du Wildcard let's encrypt sur du Debian 12.5
+
+Pour la création des identifiants OVH : 
+
+Europe: https://www.ovh.com/auth/api/createToken
+
+## Deploy on Debian / Ubuntu
+
+### Interactive
+```bash
+bash -c "$(curl -s https://raw.githubusercontent.com/gamersalpha/docker-environment/main/install-docker-environment.sh)"
+```
+
+
+
+
+</p>
+
+
 <p align="center">
   <a href="https://papamica.com">
     <img src="https://img.papamica.com/logo/papamica.png" width="140px" alt="PAPAMICA" />
